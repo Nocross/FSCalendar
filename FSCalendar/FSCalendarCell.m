@@ -334,7 +334,7 @@
 \
 - (CGPoint)NAME \
 { \
-    return CGPointEqualToPoint(_##NAME, CGPointInfinity) ? ALTERNATIVE : _##NAME; \
+    return CGPointEqualToPoint(_##NAME, CGPointMax) ? ALTERNATIVE : _##NAME; \
 }
 
 OFFSET_PROPERTY(preferredTitleOffset, PreferredTitleOffset, _appearance.titleOffset);
@@ -413,7 +413,7 @@ OFFSET_PROPERTY(preferredEventOffset, PreferredEventOffset, _appearance.eventOff
     if (layer == self.layer) {
         
         CGFloat diameter = MIN(MIN(self.fs_width, self.fs_height),FSCalendarMaximumEventDotDiameter);
-        for (int i = 0; i < self.eventLayers.count; i++) {
+        for (NSUInteger i = 0; i < self.eventLayers.count; i++) {
             CALayer *eventLayer = [self.eventLayers pointerAtIndex:i];
             eventLayer.hidden = i >= self.numberOfEvents;
             if (!eventLayer.hidden) {
@@ -432,13 +432,13 @@ OFFSET_PROPERTY(preferredEventOffset, PreferredEventOffset, _appearance.eventOff
         _color = color;
         
         if ([_color isKindOfClass:[UIColor class]]) {
-            for (NSInteger i = 0; i < self.eventLayers.count; i++) {
+            for (NSUInteger i = 0; i < self.eventLayers.count; i++) {
                 CALayer *layer = [self.eventLayers pointerAtIndex:i];
                 layer.backgroundColor = [_color CGColor];
             }
         } else if ([_color isKindOfClass:[NSArray class]]) {
             NSArray<UIColor *> *colors = (NSArray *)_color;
-            for (int i = 0; i < self.eventLayers.count; i++) {
+            for (NSUInteger i = 0; i < self.eventLayers.count; i++) {
                 CALayer *eventLayer = [self.eventLayers pointerAtIndex:i];
                 eventLayer.backgroundColor = colors[MIN(i,colors.count-1)].CGColor;
             }

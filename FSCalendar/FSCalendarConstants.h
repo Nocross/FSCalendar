@@ -34,7 +34,7 @@ UIKIT_EXTERN NSString * const FSCalendarDefaultCellReuseIdentifier;
 UIKIT_EXTERN NSString * const FSCalendarBlankCellReuseIdentifier;
 UIKIT_EXTERN NSString * const FSCalendarInvalidArgumentsExceptionName;
 
-CG_EXTERN CGPoint const CGPointInfinity;
+CG_EXTERN CGPoint const CGPointMax;
 CG_EXTERN CGSize const CGSizeAutomatic;
 
 #if TARGET_INTERFACE_BUILDER
@@ -54,10 +54,17 @@ CG_EXTERN CGSize const CGSizeAutomatic;
 #define FSColorRGBA(r,g,b,a) [UIColor colorWithRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:a]
 #define FSCalendarInAppExtension [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"]
 
-#define FSCalendarFloor(c) floorf(c)
-#define FSCalendarRound(c) roundf(c)
-#define FSCalendarCeil(c) ceilf(c)
-#define FSCalendarMod(c1,c2) fmodf(c1,c2)
+#if defined(__LP64__) && __LP64__
+# define FSCalendarFloor(c) floor(c)
+# define FSCalendarRound(c) round(c)
+# define FSCalendarCeil(c) ceil(c)
+# define FSCalendarMod(c1,c2) fmod(c1,c2)
+#else
+# define FSCalendarFloor(c) floorf(c)
+# define FSCalendarRound(c) roundf(c)
+# define FSCalendarCeil(c) ceilf(c)
+# define FSCalendarMod(c1,c2) fmodf(c1,c2)
+#endif
 
 #define FSCalendarHalfRound(c) (FSCalendarRound(c*2)*0.5)
 #define FSCalendarHalfFloor(c) (FSCalendarFloor(c*2)*0.5)
@@ -71,11 +78,11 @@ CG_EXTERN CGSize const CGSizeAutomatic;
 
 #define FSCalendarDeprecated(instead) DEPRECATED_MSG_ATTRIBUTE(" Use " # instead " instead")
 
-static inline void FSCalendarSliceCake(CGFloat cake, NSInteger count, CGFloat *pieces) {
+static inline void FSCalendarSliceCake(CGFloat cake, NSUInteger count, CGFloat *pieces) {
     CGFloat total = cake;
-    for (int i = 0; i < count; i++) {
-        NSInteger remains = count - i;
-        CGFloat piece = FSCalendarRound(total/remains*2)*0.5;
+    for (NSUInteger i = 0; i < count; i++) {
+        NSInteger remains = (NSInteger)(count - i);
+        CGFloat piece = FSCalendarRound(total/remains * 2.0f) * 0.5f;
         total -= piece;
         pieces[i] = piece;
     }

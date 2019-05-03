@@ -144,7 +144,7 @@
     // Calculate item widths and lefts
     free(self.widths);
     self.widths = ({
-        NSInteger columnCount = 7;
+        NSUInteger columnCount = 7;
         size_t columnSize = sizeof(CGFloat)*columnCount;
         CGFloat *widths = malloc(columnSize);
         CGFloat contentWidth = self.collectionView.fs_width - self.sectionInsets.left - self.sectionInsets.right;
@@ -154,11 +154,11 @@
     
     free(self.lefts);
     self.lefts = ({
-        NSInteger columnCount = 7;
+        NSUInteger columnCount = 7;
         size_t columnSize = sizeof(CGFloat)*columnCount;
         CGFloat *lefts = malloc(columnSize);
         lefts[0] = self.sectionInsets.left;
-        for (int i = 1; i < columnCount; i++) {
+        for (size_t i = 1; i < columnCount; i++) {
             lefts[i] = lefts[i-1] + self.widths[i-1];
         }
         lefts;
@@ -167,14 +167,14 @@
     // Calculate item heights and tops
     free(self.heights);
     self.heights = ({
-        NSInteger rowCount = self.calendar.transitionCoordinator.representingScope == FSCalendarScopeWeek ? 1 : 6;
+        NSUInteger rowCount = self.calendar.transitionCoordinator.representingScope == FSCalendarScopeWeek ? 1 : 6;
         size_t rowSize = sizeof(CGFloat)*rowCount;
         CGFloat *heights = malloc(rowSize);
         if (!self.calendar.floatingMode) {
             CGFloat contentHeight = self.collectionView.fs_height - self.sectionInsets.top - self.sectionInsets.bottom;
             FSCalendarSliceCake(contentHeight, rowCount, heights);
         } else {
-            for (int i = 0; i < rowCount; i++) {
+            for (size_t i = 0; i < rowCount; i++) {
                 heights[i] = self.estimatedItemSize.height;
             }
         }
@@ -183,11 +183,11 @@
     
     free(self.tops);
     self.tops = ({
-        NSInteger rowCount = self.calendar.transitionCoordinator.representingScope == FSCalendarScopeWeek ? 1 : 6;
+        NSUInteger rowCount = self.calendar.transitionCoordinator.representingScope == FSCalendarScopeWeek ? 1 : 6;
         size_t rowSize = sizeof(CGFloat)*rowCount;
         CGFloat *tops = malloc(rowSize);
         tops[0] = self.sectionInsets.top;
-        for (int i = 1; i < rowCount; i++) {
+        for (size_t i = 1; i < rowCount; i++) {
             tops[i] = tops[i-1] + self.heights[i-1];
         }
         tops;
@@ -215,12 +215,21 @@
             contentSize = CGSizeMake(width, height);
         } else {
             free(self.sectionHeights);
-            self.sectionHeights = malloc(sizeof(CGFloat)*self.numberOfSections);
+            
+            {
+                size_t const size = sizeof(CGFloat) * (size_t)self.numberOfSections;
+                self.sectionHeights = malloc(size);
+            }
+            
             free(self.sectionRowCounts);
-            self.sectionRowCounts = malloc(sizeof(NSInteger)*self.numberOfSections);
+            
+            {
+                size_t const size = sizeof(NSInteger) * (size_t)self.numberOfSections;
+                self.sectionRowCounts = malloc(size);
+            }
             CGFloat width = self.collectionView.fs_width;
             CGFloat height = 0;
-            for (int i = 0; i < self.numberOfSections; i++) {
+            for (NSInteger i = 0; i < self.numberOfSections; i++) {
                 NSInteger rowCount = [self.calendar.calculator numberOfRowsInSection:i];
                 self.sectionRowCounts[i] = rowCount;
                 CGFloat sectionHeight = self.headerReferenceSize.height;
@@ -231,12 +240,21 @@
                 height += sectionHeight;
             }
             free(self.sectionTops);
-            self.sectionTops = malloc(sizeof(CGFloat)*self.numberOfSections);
+            
+            {
+                size_t const size = sizeof(CGFloat) * (size_t)self.numberOfSections;
+                self.sectionTops = malloc(size);
+            }
+            
             free(self.sectionBottoms);
-            self.sectionBottoms = malloc(sizeof(CGFloat)*self.numberOfSections);
+            
+            {
+                size_t const size = sizeof(CGFloat) * (size_t)self.numberOfSections;
+                self.sectionBottoms = malloc(size);
+            }
             self.sectionTops[0] = 0;
             self.sectionBottoms[0] = self.sectionHeights[0];
-            for (int i = 1; i < self.numberOfSections; i++) {
+            for (NSInteger i = 1; i < self.numberOfSections; i++) {
                 self.sectionTops[i] = self.sectionTops[i-1] + self.sectionHeights[i-1];
                 self.sectionBottoms[i] = self.sectionTops[i] + self.sectionHeights[i];
             }
@@ -268,10 +286,10 @@
             case UICollectionViewScrollDirectionHorizontal: {
                 
                 NSInteger startColumn = ({
-                    NSInteger startSection = rect.origin.x/self.collectionView.fs_width;
-                    CGFloat widthDelta = FSCalendarMod(CGRectGetMinX(rect), self.collectionView.fs_width)-self.sectionInsets.left;
-                    widthDelta = MIN(MAX(0, widthDelta), self.collectionView.fs_width-self.sectionInsets.left);
-                    NSInteger countDelta = FSCalendarFloor(widthDelta/self.estimatedItemSize.width);
+                    NSInteger startSection = (NSInteger)(rect.origin.x/self.collectionView.fs_width);
+                    CGFloat widthDelta = FSCalendarMod(CGRectGetMinX(rect), self.collectionView.fs_width) - self.sectionInsets.left;
+                    widthDelta = MIN(MAX(0, widthDelta), self.collectionView.fs_width - self.sectionInsets.left);
+                    NSInteger countDelta = (NSInteger)FSCalendarFloor(widthDelta/self.estimatedItemSize.width);
                     NSInteger startColumn = startSection*7 + countDelta;
                     startColumn;
                 });
@@ -282,12 +300,12 @@
                     CGFloat remainder = FSCalendarMod(section, 1);
                     // https://stackoverflow.com/a/10335601/2398107
                     if (remainder <= MAX(100*FLT_EPSILON*ABS(remainder), FLT_MIN)) {
-                        endColumn = FSCalendarFloor(section)*7 - 1;
+                        endColumn = (NSInteger)FSCalendarFloor(section)*7 - 1;
                     } else {
                         CGFloat widthDelta = FSCalendarMod(CGRectGetMaxX(rect), self.collectionView.fs_width)-self.sectionInsets.left;
                         widthDelta = MIN(MAX(0, widthDelta), self.collectionView.fs_width - self.sectionInsets.left);
-                        NSInteger countDelta = FSCalendarCeil(widthDelta/self.estimatedItemSize.width);
-                        endColumn = FSCalendarFloor(section)*7 + countDelta - 1;
+                        NSInteger countDelta = (NSInteger)FSCalendarCeil(widthDelta/self.estimatedItemSize.width);
+                        endColumn = (NSInteger)FSCalendarFloor(section)*7 + countDelta - 1;
                     }
                     endColumn;
                 });
@@ -314,10 +332,10 @@
             case UICollectionViewScrollDirectionVertical: {
                 
                 NSInteger startRow = ({
-                    NSInteger startSection = rect.origin.y/self.collectionView.fs_height;
+                    NSInteger startSection = (NSInteger)(rect.origin.y/self.collectionView.fs_height);
                     CGFloat heightDelta = FSCalendarMod(CGRectGetMinY(rect), self.collectionView.fs_height)-self.sectionInsets.top;
                     heightDelta = MIN(MAX(0, heightDelta), self.collectionView.fs_height-self.sectionInsets.top);
-                    NSInteger countDelta = FSCalendarFloor(heightDelta/self.estimatedItemSize.height);
+                    NSInteger countDelta = (NSInteger)FSCalendarFloor(heightDelta/self.estimatedItemSize.height);
                     NSInteger startRow = startSection*6 + countDelta;
                     startRow;
                 });
@@ -328,12 +346,12 @@
                     CGFloat remainder = FSCalendarMod(section, 1);
                     // https://stackoverflow.com/a/10335601/2398107
                     if (remainder <= MAX(100*FLT_EPSILON*ABS(remainder), FLT_MIN)) {
-                        endRow = FSCalendarFloor(section)*6 - 1;
+                        endRow = (NSInteger)FSCalendarFloor(section)*6 - 1;
                     } else {
                         CGFloat heightDelta = FSCalendarMod(CGRectGetMaxY(rect), self.collectionView.fs_height)-self.sectionInsets.top;
                         heightDelta = MIN(MAX(0, heightDelta), self.collectionView.fs_height-self.sectionInsets.top);
-                        NSInteger countDelta = FSCalendarCeil(heightDelta/self.estimatedItemSize.height);
-                        endRow = FSCalendarFloor(section)*6 + countDelta-1;
+                        NSInteger countDelta = (NSInteger)FSCalendarCeil(heightDelta/self.estimatedItemSize.height);
+                        endRow = (NSInteger)FSCalendarFloor(section)*6 + countDelta-1;
                     }
                     endRow;
                 });
@@ -365,21 +383,21 @@
         NSInteger startSection = [self searchStartSection:rect :0 :self.numberOfSections-1];
         NSInteger startRowIndex = ({
             CGFloat heightDelta1 = MIN(self.sectionBottoms[startSection]-CGRectGetMinY(rect)-self.sectionInsets.bottom, self.sectionRowCounts[startSection]*self.estimatedItemSize.height);
-            NSInteger startRowCount = FSCalendarCeil(heightDelta1/self.estimatedItemSize.height);
-            NSInteger startRowIndex = self.sectionRowCounts[startSection]-startRowCount;
+            NSInteger startRowCount = (NSInteger)FSCalendarCeil(heightDelta1/self.estimatedItemSize.height);
+            NSInteger startRowIndex = (NSInteger)self.sectionRowCounts[startSection]-startRowCount;
             startRowIndex;
         });
         
         NSInteger endSection = [self searchEndSection:rect :startSection :self.numberOfSections-1];
         NSInteger endRowIndex = ({
             CGFloat heightDelta2 = MAX(CGRectGetMaxY(rect) - self.sectionTops[endSection]- self.headerReferenceSize.height - self.sectionInsets.top, 0);
-            NSInteger endRowCount = FSCalendarCeil(heightDelta2/self.estimatedItemSize.height);
+            NSInteger endRowCount = (NSInteger)FSCalendarCeil(heightDelta2/self.estimatedItemSize.height);
             NSInteger endRowIndex = endRowCount - 1;
             endRowIndex;
         });
         for (NSInteger section = startSection; section <= endSection; section++) {
             NSInteger startRow = (section == startSection) ? startRowIndex : 0;
-            NSInteger endRow = (section == endSection) ? endRowIndex : self.sectionRowCounts[section]-1;
+            NSInteger endRow = (section == endSection) ? endRowIndex : (NSInteger)self.sectionRowCounts[section]-1;
             UICollectionViewLayoutAttributes *headerAttributes = [self layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionHeader atIndexPath:[NSIndexPath indexPathForItem:0 inSection:section]];
             [layoutAttributes addObject:headerAttributes];
             for (NSInteger row = startRow; row <= endRow; row++) {

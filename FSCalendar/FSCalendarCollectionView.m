@@ -59,7 +59,7 @@
 - (void)setContentInset:(UIEdgeInsets)contentInset
 {
     [super setContentInset:UIEdgeInsetsZero];
-    if (contentInset.top) {
+    if (contentInset.top != 0.0f) {
         self.contentOffset = CGPointMake(self.contentOffset.x, self.contentOffset.y+contentInset.top);
     }
 }

@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSDate *)fs_firstDayOfWeek:(NSDate *)week;
 - (nullable NSDate *)fs_lastDayOfWeek:(NSDate *)week;
 - (nullable NSDate *)fs_middleDayOfWeek:(NSDate *)week;
-- (NSInteger)fs_numberOfDaysInMonth:(NSDate *)month;
+- (NSUInteger)fs_numberOfDaysInMonth:(NSDate *)month;
 
 @end
 

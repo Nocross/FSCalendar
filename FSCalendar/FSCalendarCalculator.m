@@ -56,10 +56,10 @@
 
 - (id)forwardingTargetForSelector:(SEL)selector
 {
-    if ([self.calendar respondsToSelector:selector]) {
-        return self.calendar;
-    }
-    return [super forwardingTargetForSelector:selector];
+    __auto_type const calendar = self.calendar;
+    
+    BOOL const hasTarget = calendar != nil && [calendar respondsToSelector:selector];
+    return hasTarget ? calendar : [super forwardingTargetForSelector:selector];
 }
 
 #pragma mark - Public functions
@@ -80,7 +80,7 @@
     switch (scope) {
         case FSCalendarScopeMonth: {
             NSDate *head = [self monthHeadForSection:indexPath.section];
-            NSUInteger daysOffset = indexPath.item;
+            NSInteger daysOffset = indexPath.item;
             NSDate *date = [self.gregorian dateByAddingUnit:NSCalendarUnitDay value:daysOffset toDate:head options:0];
             return date;
             break;
@@ -129,7 +129,7 @@
         }
         case FSCalendarScopeWeek: {
             section = [self.gregorian components:NSCalendarUnitWeekOfYear fromDate:[self.gregorian fs_firstDayOfWeek:self.minimumDate] toDate:[self.gregorian fs_firstDayOfWeek:date] options:0].weekOfYear;
-            item = (([self.gregorian component:NSCalendarUnitWeekday fromDate:date] - self.gregorian.firstWeekday) + 7) % 7;
+            item = (((NSUInteger)[self.gregorian component:NSCalendarUnitWeekday fromDate:date] - self.gregorian.firstWeekday) + 7) % 7;
             break;
         }
     }
@@ -210,23 +210,38 @@
 
 - (NSInteger)numberOfHeadPlaceholdersForMonth:(NSDate *)month
 {
-    NSInteger currentWeekday = [self.gregorian component:NSCalendarUnitWeekday fromDate:month];
-    NSInteger number = ((currentWeekday- self.gregorian.firstWeekday) + 7) % 7 ?: (7 * (!self.calendar.floatingMode&&(self.calendar.placeholderType == FSCalendarPlaceholderTypeFillSixRows)));
+    __auto_type const gregorian = self.gregorian;
+    
+    NSInteger const currentWeekday = [gregorian component:NSCalendarUnitWeekday fromDate:month];
+    
+    __auto_type const calendar = self.calendar;
+    NSParameterAssert(calendar);
+    
+    NSInteger const number = ((currentWeekday - (NSInteger)gregorian.firstWeekday) + 7) % 7 ?: (7 * (!calendar.floatingMode && (calendar.placeholderType == FSCalendarPlaceholderTypeFillSixRows)));
     return number;
 }
 
 - (NSInteger)numberOfRowsInMonth:(NSDate *)month
 {
     if (!month) return 0;
-    if (self.calendar.placeholderType == FSCalendarPlaceholderTypeFillSixRows) return 6;
+    
+    __auto_type const calendar = self.calendar;
+    NSParameterAssert(calendar);
+    
+    if (calendar.placeholderType == FSCalendarPlaceholderTypeFillSixRows) return 6;
     
     NSNumber *rowCount = self.rowCounts[month];
-    if (!rowCount) {
-        NSDate *firstDayOfMonth = [self.gregorian fs_firstDayOfMonth:month];
-        NSInteger weekdayOfFirstDay = [self.gregorian component:NSCalendarUnitWeekday fromDate:firstDayOfMonth];
-        NSInteger numberOfDaysInMonth = [self.gregorian fs_numberOfDaysInMonth:month];
-        NSInteger numberOfPlaceholdersForPrev = ((weekdayOfFirstDay - self.gregorian.firstWeekday) + 7) % 7;
-        NSInteger headDayCount = numberOfDaysInMonth + numberOfPlaceholdersForPrev;
+    if (rowCount != nil) {
+        __auto_type const gregorian = self.gregorian;
+        
+        NSDate * const firstDayOfMonth = [gregorian fs_firstDayOfMonth:month];
+        NSInteger const weekdayOfFirstDay = [gregorian component:NSCalendarUnitWeekday fromDate:firstDayOfMonth];
+        
+        
+        
+        NSUInteger const numberOfDaysInMonth = [gregorian fs_numberOfDaysInMonth:month];
+        NSInteger numberOfPlaceholdersForPrev = ((weekdayOfFirstDay - (NSInteger)gregorian.firstWeekday) + 7) % 7;
+        NSInteger headDayCount = (NSInteger)numberOfDaysInMonth + numberOfPlaceholdersForPrev;
         NSInteger numberOfRows = (headDayCount/7) + (headDayCount%7>0);
         rowCount = @(numberOfRows);
         self.rowCounts[month] = rowCount;

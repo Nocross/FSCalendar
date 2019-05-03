@@ -1351,23 +1351,23 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     FSCalendarInvalidateCellAppearance(preferredTitleDefaultColor,titleDefaultColorForDate);
     FSCalendarInvalidateCellAppearance(preferredTitleSelectionColor,titleSelectionColorForDate);
 
-    FSCalendarInvalidateCellAppearanceWithDefault(preferredTitleOffset,titleOffsetForDate,CGPointInfinity);
+    FSCalendarInvalidateCellAppearanceWithDefault(preferredTitleOffset,titleOffsetForDate,CGPointMax);
     if (cell.subtitle) {
         FSCalendarInvalidateCellAppearance(preferredSubtitleDefaultColor,subtitleDefaultColorForDate);
         FSCalendarInvalidateCellAppearance(preferredSubtitleSelectionColor,subtitleSelectionColorForDate);
-        FSCalendarInvalidateCellAppearanceWithDefault(preferredSubtitleOffset,subtitleOffsetForDate,CGPointInfinity);
+        FSCalendarInvalidateCellAppearanceWithDefault(preferredSubtitleOffset,subtitleOffsetForDate,CGPointMax);
     }
     if (cell.numberOfEvents) {
         FSCalendarInvalidateCellAppearance(preferredEventDefaultColors,eventDefaultColorsForDate);
         FSCalendarInvalidateCellAppearance(preferredEventSelectionColors,eventSelectionColorsForDate);
-        FSCalendarInvalidateCellAppearanceWithDefault(preferredEventOffset,eventOffsetForDate,CGPointInfinity);
+        FSCalendarInvalidateCellAppearanceWithDefault(preferredEventOffset,eventOffsetForDate,CGPointMax);
     }
     FSCalendarInvalidateCellAppearance(preferredBorderDefaultColor,borderDefaultColorForDate);
     FSCalendarInvalidateCellAppearance(preferredBorderSelectionColor,borderSelectionColorForDate);
     FSCalendarInvalidateCellAppearanceWithDefault(preferredBorderRadius,borderRadiusForDate,-1);
 
     if (cell.image) {
-        FSCalendarInvalidateCellAppearanceWithDefault(preferredImageOffset,imageOffsetForDate,CGPointInfinity);
+        FSCalendarInvalidateCellAppearanceWithDefault(preferredImageOffset,imageOffsetForDate,CGPointMax);
     }
     
 #undef FSCalendarInvalidateCellAppearance
@@ -1447,7 +1447,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
 {
     if (_placeholderType == FSCalendarPlaceholderTypeNone) return;
     if (self.scope == FSCalendarScopeWeek) return;
-    NSInteger numberOfDays = [self.gregorian fs_numberOfDaysInMonth:date];
+    NSInteger numberOfDays = (NSInteger)[self.gregorian fs_numberOfDaysInMonth:date];
     NSInteger day = [self.gregorian component:NSCalendarUnitDay fromDate:date];
     FSCalendarCell *cell;
     if (day < numberOfDays/2+1) {
@@ -1468,7 +1468,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
 {
     if (_placeholderType == FSCalendarPlaceholderTypeNone) return;
     if (self.scope == FSCalendarScopeWeek) return;
-    NSInteger numberOfDays = [self.gregorian fs_numberOfDaysInMonth:date];
+    NSInteger numberOfDays = (NSInteger)[self.gregorian fs_numberOfDaysInMonth:date];
     NSInteger day = [self.gregorian component:NSCalendarUnitDay fromDate:date];
     FSCalendarCell *cell;
     if (day < numberOfDays/2+1) {

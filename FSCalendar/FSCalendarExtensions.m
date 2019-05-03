@@ -168,7 +168,7 @@
     if (!week) return nil;
     NSDateComponents *weekdayComponents = [self components:NSCalendarUnitWeekday fromDate:week];
     NSDateComponents *components = self.fs_privateComponents;
-    components.day = - (weekdayComponents.weekday - self.firstWeekday);
+    components.day = - (NSInteger)((NSUInteger)weekdayComponents.weekday - self.firstWeekday);
     components.day = (components.day-7) % 7;
     NSDate *firstDayOfWeek = [self dateByAddingComponents:components toDate:week options:0];
     firstDayOfWeek = [self dateBySettingHour:0 minute:0 second:0 ofDate:firstDayOfWeek options:0];
@@ -181,7 +181,7 @@
     if (!week) return nil;
     NSDateComponents *weekdayComponents = [self components:NSCalendarUnitWeekday fromDate:week];
     NSDateComponents *components = self.fs_privateComponents;
-    components.day = - (weekdayComponents.weekday - self.firstWeekday);
+    components.day = - (NSInteger)((NSUInteger)weekdayComponents.weekday - self.firstWeekday);
     components.day = (components.day-7) % 7 + 6;
     NSDate *lastDayOfWeek = [self dateByAddingComponents:components toDate:week options:0];
     lastDayOfWeek = [self dateBySettingHour:0 minute:0 second:0 ofDate:lastDayOfWeek options:0];
@@ -194,7 +194,7 @@
     if (!week) return nil;
     NSDateComponents *weekdayComponents = [self components:NSCalendarUnitWeekday fromDate:week];
     NSDateComponents *componentsToSubtract = self.fs_privateComponents;
-    componentsToSubtract.day = - (weekdayComponents.weekday - self.firstWeekday) + 3;
+    componentsToSubtract.day = - (NSInteger)((NSUInteger)weekdayComponents.weekday - self.firstWeekday) + 3;
     NSDate *middleDayOfWeek = [self dateByAddingComponents:componentsToSubtract toDate:week options:0];
     NSDateComponents *components = [self components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour fromDate:middleDayOfWeek];
     middleDayOfWeek = [self dateFromComponents:components];
@@ -202,7 +202,7 @@
     return middleDayOfWeek;
 }
 
-- (NSInteger)fs_numberOfDaysInMonth:(NSDate *)month
+- (NSUInteger)fs_numberOfDaysInMonth:(NSDate *)month
 {
     if (!month) return 0;
     NSRange days = [self rangeOfUnit:NSCalendarUnitDay
@@ -310,13 +310,13 @@ IVAR_IMP(UnsignedInteger,unsignedInteger,NSUInteger)
     
     // Parameters
     if (firstObject) {
-        int index = 2;
+        NSInteger index = 2;
         va_list args;
         va_start(args, firstObject);
         if (firstObject) {
             id obj = firstObject;
             do {
-                const char *argType = [signature getArgumentTypeAtIndex:index];
+                const char *argType = [signature getArgumentTypeAtIndex:(NSUInteger)index];
                 if(!strcmp(argType, @encode(id))){
                     // object
                     [invocation setArgument:&obj atIndex:index++];
